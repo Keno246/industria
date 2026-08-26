@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Setor;
+use Illuminate\Support\Facades\Auth;
 
 class SetorController extends Controller
 {
@@ -29,7 +30,10 @@ class SetorController extends Controller
      */
     public function store(Request $request)
     {
-        Setor::create($request->only('nome'));
+        Setor::create([
+            'nome' => $request->nome,
+            'criado_por_usuario_id' => Auth::id()
+        ]);
         return redirect()->route('setores.index');
     }
 

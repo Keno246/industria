@@ -5,6 +5,7 @@ use App\Http\Controllers\SetorController;
 use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\FuncionarioController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChamadoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +23,10 @@ Route::middleware('auth')->group(function () {
 Route::patch('/setores/{id}/status',[SetorController::class,'ativarDesativar'])->name('setores.ativar-desativar');
 Route::resource('funcionarios',FuncionarioController::class);
 Route::resource('equipamentos',EquipamentoController::class);
+
+Route::resource('chamados', ChamadoController::class);
+
+
 
 });
 
