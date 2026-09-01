@@ -6,6 +6,8 @@ use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\FuncionarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChamadoController;
+use App\Http\Controllers\ManutencaoController;
+use App\Http\Controllers\OrdemProducaoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +27,16 @@ Route::resource('funcionarios',FuncionarioController::class);
 Route::resource('equipamentos',EquipamentoController::class);
 
 Route::resource('chamados', ChamadoController::class);
+
+Route::resource('manutencoes', ManutencaoController::class)
+    ->parameters(['manutencoes' => 'manutencao']);
+
+Route::resource(
+    'ordens_producao',
+    OrdemProducaoController::class
+)->parameters([
+    'ordens_producao' => 'ordemProducao'
+]);
 
 
 
