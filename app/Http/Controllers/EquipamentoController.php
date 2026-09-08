@@ -8,91 +8,125 @@ use Illuminate\Http\Request;
 
 class EquipamentoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-   public function index()
-{
-    $equipamentos = Equipamento::all();
-
-    return view('equipamentos.index', compact('equipamentos'));
-}
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-{
-    $setores = Setor::all();
-
-    return view('equipamentos.create', compact('setores'));
-}
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-{
-    $request->validate([
-        'nome' => 'required',
-        'patrimonio' => 'required|unique:equipamentos,patrimonio',
-        'setor_id' => 'nullable',
-        'status' => 'nullable'
-    ]);
-
-    Equipamento::create(
-        $request->only('nome', 'patrimonio', 'setor_id', 'status')
-    );
-
-    return redirect()->route('equipamentos.index');
-}
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function index(Request $request)
     {
-        //
+        $equipamentos = Equipamento::where('id', '>', 0);
+
+        if ($request->filled('nome')) {
+            $equipamentos = $equipamentos->where(
+                'nome',
+                'like',
+                '%' . $request->nome . '%'
+            );
+        }
+
+        if ($request->filled('status')) {
+            $equipamentos = $equipamentos->where(
+                'status',
+                $request->status
+            );
+        }
+
+        if ($request->filled('setor_id')) {
+            $equipamentos = $equipamentos->where(
+                'setor_id',
+                $request->setor_id
+            );
+        }
+
+        if ($request->filled('patrimonio')) {
+            $equipamentos = $equipamentos->where(
+                'patrimonio',
+                'like',
+                '%' . $request->patrimonio . '%'
+            );
+        }
+
+        $setorSelecionado = $request->filled('setor_id')
+            ? Setor::find($request->setor_id)
+            : null;
+
+        $equipamentos = $equipamentos->get();
+
+        $setores = Setor::all();
+
+        return view('equipamentos.index', compact(
+            'equipamentos',
+            'setores',
+            'setorSelecionado'
+        ));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    public function create()
+    {
+        $setores = Setor::all();
+
+        return view('equipamentos.create', compact('setores'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nome' => 'required|max:150',
+            'patrimonio' => 'required|max:30|unique:equipamentos,patrimonio',
+            'setor_id' => 'nullable|exists:setores,id',
+            'status' => 'nullable|max:20'
+        ]);
+
+        Equipamento::create([
+            'nome' => $request->nome,
+            'patrimonio' => $request->patrimonio,
+            'setor_id' => $request->setor_id,
+            'status' => $request->status ?? 'ativo'
+        ]);
+
+        return redirect()
+            ->route('equipamentos.index')
+            ->with('success', 'Equipamento cadastrado com sucesso!');
+    }
+
+    public function show(Equipamento $equipamento)
+    {
+        return view('equipamentos.show', compact('equipamento'));
+    }
+
     public function edit(Equipamento $equipamento)
-{
-    $setores = Setor::all();
+    {
+        $setores = Setor::all();
 
-    return view(
-        'equipamentos.edit',
-        compact('equipamento', 'setores')
-    );
-}
-    /**
-     * Update the specified resource in storage.
-     */
-   public function update(Request $request, Equipamento $equipamento)
-{
-    $request->validate([
-        'nome' => 'required',
-        'patrimonio' => 'required|unique:equipamentos,patrimonio,' . $equipamento->id,
-        'setor_id' => 'nullable',
-        'status' => 'nullable'
-    ]);
+        return view('equipamentos.edit', compact(
+            'equipamento',
+            'setores'
+        ));
+    }
 
-    $equipamento->update(
-        $request->only('nome', 'patrimonio', 'setor_id', 'status')
-    );
+    public function update(Request $request, Equipamento $equipamento)
+    {
+        $request->validate([
+            'nome' => 'required|max:150',
+            'patrimonio' => 'required|max:30|unique:equipamentos,patrimonio,' . $equipamento->id,
+            'setor_id' => 'nullable|exists:setores,id',
+            'status' => 'nullable|max:20'
+        ]);
 
-    return redirect()->route('equipamentos.index');
-}
+        $equipamento->update([
+            'nome' => $request->nome,
+            'patrimonio' => $request->patrimonio,
+            'setor_id' => $request->setor_id,
+            'status' => $request->status ?? 'ativo'
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-   public function destroy(Equipamento $equipamento)
-{
-    $equipamento->delete();
+        return redirect()
+            ->route('equipamentos.index')
+            ->with('success', 'Equipamento atualizado com sucesso!');
+    }
 
-    return redirect()->route('equipamentos.index');
-}
+    public function destroy(Equipamento $equipamento)
+    {
+        $equipamento->delete();
+
+        return redirect()
+            ->route('equipamentos.index')
+            ->with('success', 'Equipamento excluído com sucesso!');
+    }
 }

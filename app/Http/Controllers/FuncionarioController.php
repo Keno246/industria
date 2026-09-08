@@ -11,13 +11,55 @@ class FuncionarioController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-         $funcionarios = Funcionario::all();
+ public function index(Request $request)
+{
+    $funcionarios = Funcionario::where('id', '>', 0);
 
-    return view('funcionarios.index', compact('funcionarios'));
+    if ($request->filled('nome')) {
+        $funcionarios = $funcionarios->where(
+            'nome',
+            'like',
+            '%' . $request->nome . '%'
+        );
     }
 
+    if ($request->filled('cargo')) {
+        $funcionarios = $funcionarios->where(
+            'cargo',
+            'like',
+            '%' . $request->cargo . '%'
+        );
+    }
+
+    if ($request->filled('setor_id')) {
+        $funcionarios = $funcionarios->where(
+            'setor_id',
+            $request->setor_id
+        );
+    }
+
+    if ($request->filled('matricula')) {
+        $funcionarios = $funcionarios->where(
+            'matricula',
+            'like',
+            '%' . $request->matricula . '%'
+        );
+    }
+
+    $setorSelecionado = $request->filled('setor_id')
+        ? Setor::find($request->setor_id)
+        : null;
+
+    $funcionarios = $funcionarios->get();
+
+    $setores = Setor::all();
+
+    return view('funcionarios.index', compact(
+        'funcionarios',
+        'setores',
+        'setorSelecionado'
+    ));
+}
     /**
      * Show the form for creating a new resource.
      */

@@ -1,55 +1,150 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+@extends('layouts.app')
 
-<head>
+@section('content')
 
-    <meta charset="UTF-8">
+<div class="container">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h1 class="mb-4">Equipamentos</h1>
 
-    <title>Equipamentos</title>
+    <form method="GET" action="{{ route('equipamentos.index') }}" class="mb-4">
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        <div class="row">
 
-</head>
+            <div class="col-md-3">
+                <label for="nome" class="form-label">Nome</label>
 
-<body>
+                <input
+                    type="text"
+                    name="nome"
+                    id="nome"
+                    class="form-control"
+                    value="{{ request('nome') }}"
+                >
+            </div>
 
-<div class="container mt-5">
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
 
-    <h1>Equipamentos</h1>
+                <select
+                    name="status"
+                    id="status"
+                    class="form-select"
+                >
+                    <option value="">Todos</option>
 
-    <a
-        href="{{ route('equipamentos.create') }}"
-        class="btn btn-success mb-3"
-    >
-        Novo Equipamento
-    </a>
+                    <option
+                        value="ativo"
+                        {{ request('status') == 'ativo' ? 'selected' : '' }}
+                    >
+                        Ativo
+                    </option>
+
+                    <option
+                        value="manutencao"
+                        {{ request('status') == 'manutencao' ? 'selected' : '' }}
+                    >
+                        Manutenção
+                    </option>
+
+                    <option
+                        value="inativo"
+                        {{ request('status') == 'inativo' ? 'selected' : '' }}
+                    >
+                        Inativo
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="setor_id" class="form-label">Setor</label>
+
+                <select
+                    name="setor_id"
+                    id="setor_id"
+                    class="form-select"
+                >
+                    <option value="">Todos</option>
+
+                    @foreach($setores as $setor)
+
+                        <option
+                            value="{{ $setor->id }}"
+                            {{ request('setor_id') == $setor->id ? 'selected' : '' }}
+                        >
+                            {{ $setor->nome }}
+                        </option>
+
+                    @endforeach
+
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="patrimonio" class="form-label">
+                    Patrimônio
+                </label>
+
+                <input
+                    type="text"
+                    name="patrimonio"
+                    id="patrimonio"
+                    class="form-control"
+                    value="{{ request('patrimonio') }}"
+                >
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Filtrar
+            </button>
+
+            <a
+                href="{{ route('equipamentos.index') }}"
+                class="btn btn-secondary"
+            >
+                Limpar
+            </a>
+
+        </div>
+
+    </form>
+
+    @if($setorSelecionado)
+        <div class="alert alert-info">
+            Setor selecionado:
+            <strong>{{ $setorSelecionado->nome }}</strong>
+        </div>
+    @endif
 
     <table class="table table-bordered table-striped">
 
         <thead>
-
             <tr>
-
+                <th>ID</th>
                 <th>Nome</th>
                 <th>Patrimônio</th>
                 <th>Setor</th>
                 <th>Status</th>
                 <th>Ações</th>
-
             </tr>
-
         </thead>
 
         <tbody>
 
-            @foreach ($equipamentos as $equipamento)
+            @forelse($equipamentos as $equipamento)
 
                 <tr>
+
+                    <td>
+                        {{ $equipamento->id }}
+                    </td>
 
                     <td>
                         {{ $equipamento->nome }}
@@ -70,25 +165,32 @@
                     <td>
 
                         <a
-                            href="{{ route('equipamentos.edit', $equipamento) }}"
-                            class="btn btn-primary btn-sm"
+                            href="{{ route('equipamentos.show', $equipamento->id) }}"
+                            class="btn btn-info btn-sm"
+                        >
+                            Ver
+                        </a>
+
+                        <a
+                            href="{{ route('equipamentos.edit', $equipamento->id) }}"
+                            class="btn btn-warning btn-sm"
                         >
                             Editar
                         </a>
 
                         <form
-                            action="{{ route('equipamentos.destroy', $equipamento) }}"
+                            action="{{ route('equipamentos.destroy', $equipamento->id) }}"
                             method="POST"
-                            style="display:inline;"
+                            class="d-inline"
                         >
 
                             @csrf
-
                             @method('DELETE')
 
                             <button
                                 type="submit"
                                 class="btn btn-danger btn-sm"
+                                onclick="return confirm('Tem certeza que deseja excluir?')"
                             >
                                 Excluir
                             </button>
@@ -99,7 +201,15 @@
 
                 </tr>
 
-            @endforeach
+            @empty
+
+                <tr>
+                    <td colspan="6" class="text-center">
+                        Nenhum equipamento encontrado.
+                    </td>
+                </tr>
+
+            @endforelse
 
         </tbody>
 
@@ -107,6 +217,4 @@
 
 </div>
 
-</body>
-
-</html>
+@endsection

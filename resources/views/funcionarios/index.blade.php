@@ -1,33 +1,110 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('content')
 
-    <title>Funcionários</title>
+<div class="container">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <h1 class="mb-4">Funcionários</h1>
 
-<body>
+    <form method="GET" action="{{ route('funcionarios.index') }}" class="mb-4">
 
-<div class="container mt-5">
+        <div class="row">
 
-    <h1>Funcionários</h1>
+            <div class="col-md-3">
+                <label for="nome" class="form-label">Nome</label>
 
-    <a href="{{ route('funcionarios.create') }}"
-       class="btn btn-success mb-3">
-        Novo Funcionário
-    </a>
+                <input
+                    type="text"
+                    name="nome"
+                    id="nome"
+                    class="form-control"
+                    value="{{ request('nome') }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <label for="cargo" class="form-label">Cargo</label>
+
+                <input
+                    type="text"
+                    name="cargo"
+                    id="cargo"
+                    class="form-control"
+                    value="{{ request('cargo') }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <label for="setor_id" class="form-label">Setor</label>
+
+                <select
+                    name="setor_id"
+                    id="setor_id"
+                    class="form-select"
+                >
+                    <option value="">Todos</option>
+
+                    @foreach($setores as $setor)
+                        <option
+                            value="{{ $setor->id }}"
+                            {{ request('setor_id') == $setor->id ? 'selected' : '' }}
+                        >
+                            {{ $setor->nome }}
+                        </option>
+                    @endforeach
+
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="matricula" class="form-label">Matrícula</label>
+
+                <input
+                    type="text"
+                    name="matricula"
+                    id="matricula"
+                    class="form-control"
+                    value="{{ request('matricula') }}"
+                >
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Filtrar
+            </button>
+
+            <a
+                href="{{ route('funcionarios.index') }}"
+                class="btn btn-secondary"
+            >
+                Limpar
+            </a>
+
+        </div>
+
+    </form>
+
+    @if($setorSelecionado)
+        <div class="alert alert-info">
+            Setor selecionado:
+            <strong>{{ $setorSelecionado->nome }}</strong>
+        </div>
+    @endif
 
     <table class="table table-bordered table-striped">
 
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Nome</th>
-                <th>Matrícula</th>
                 <th>Cargo</th>
+                <th>Matrícula</th>
                 <th>Setor</th>
                 <th>Ações</th>
             </tr>
@@ -35,32 +112,78 @@
 
         <tbody>
 
-            @foreach ($funcionarios as $funcionario)
+            @forelse($funcionarios as $funcionario)
 
                 <tr>
 
-                    <td>{{ $funcionario->nome }}</td>
-
-                    <td>{{ $funcionario->matricula }}</td>
-
-                    <td>{{ $funcionario->cargo }}</td>
-
-                    <td>{{ $funcionario->setor_id }}</td>
+                    <td>
+                        {{ $funcionario->id }}
+                    </td>
 
                     <td>
-                        <a href="{{ route('funcionarios.edit', $funcionario) }}"class="btn btn-primary btn-sm">Editar</a>
+                        {{ $funcionario->nome }}
                     </td>
-                        <form action="{{ route('funcionarios.destroy', $funcionario) }}"method="POST" style="display:inline;">
 
-                @csrf
-                @method('DELETE')
+                    <td>
+                        {{ $funcionario->cargo }}
+                    </td>
 
-                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                    <td>
+                        {{ $funcionario->matricula }}
+                    </td>
+
+                    <td>
+                        {{ $funcionario->setor_id }}
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{{ route('funcionarios.show', $funcionario->id) }}"
+                            class="btn btn-info btn-sm"
+                        >
+                            Ver
+                        </a>
+
+                        <a
+                            href="{{ route('funcionarios.edit', $funcionario->id) }}"
+                            class="btn btn-warning btn-sm"
+                        >
+                            Editar
+                        </a>
+
+                        <form
+                            action="{{ route('funcionarios.destroy', $funcionario->id) }}"
+                            method="POST"
+                            class="d-inline"
+                        >
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Tem certeza que deseja excluir?')"
+                            >
+                                Excluir
+                            </button>
 
                         </form>
-            </tr>
 
-            @endforeach
+                    </td>
+
+                </tr>
+
+            @empty
+
+                <tr>
+                    <td colspan="6" class="text-center">
+                        Nenhum funcionário encontrado.
+                    </td>
+                </tr>
+
+            @endforelse
 
         </tbody>
 
@@ -68,5 +191,4 @@
 
 </div>
 
-</body>
-</html>
+@endsection
