@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChamadoController;
 use App\Http\Controllers\ManutencaoController;
 use App\Http\Controllers\OrdemProducaoController;
+use App\Http\Controllers\TarefaController;
+use App\Models\Usuario;
+use App\Http\Controllers\UsuarioController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,7 +40,10 @@ Route::resource(
 )->parameters([
     'ordens_producao' => 'ordemProducao'
 ]);
-
+Route::resource('usuarios', UsuarioController::class);
+Route::resource('tarefa', TarefaController::class);
+Route::patch('/tarefa/{id}/status', [TarefaController::class, 'alterarStatus'])
+    ->name('tarefa.status');
 
 
 });
