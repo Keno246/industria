@@ -2,15 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SetorController;
-use App\Http\Controllers\EquipamentoController;
-use App\Http\Controllers\FuncionarioController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ChamadoController;
-use App\Http\Controllers\ManutencaoController;
-use App\Http\Controllers\OrdemProducaoController;
-use App\Http\Controllers\TarefaController;
-use App\Models\Usuario;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\TarefaController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,30 +18,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('setores',SetorController::class);
-Route::patch('/setores/{id}/status',[SetorController::class,'ativarDesativar'])->name('setores.ativar-desativar');
-Route::resource('funcionarios',FuncionarioController::class);
-Route::resource('equipamentos',EquipamentoController::class);
-
-Route::resource('chamados', ChamadoController::class);
-
-Route::resource('manutencoes', ManutencaoController::class)
-    ->parameters(['manutencoes' => 'manutencao']);
-
-Route::resource(
-    'ordens_producao',
-    OrdemProducaoController::class
-)->parameters([
-    'ordens_producao' => 'ordemProducao'
-]);
-Route::resource('usuarios', UsuarioController::class);
-Route::resource('tarefa', TarefaController::class);
-Route::patch('/tarefa/{id}/status', [TarefaController::class, 'alterarStatus'])
-    ->name('tarefa.status');
-
-
+    Route::resource('setores', SetorController::class);
+    Route::patch('/setores/{id}/status',[SetorController::class,'ativarDesativar'])->name('setores.ativar-desativar');
+    Route::resource('usuario', UsuarioController::class);
+    Route::resource('tarefa', TarefaController::class);
+    Route::put('/tarefa/alterarstatus/{id}', [TarefaController::class, 'alterarstatus'])->name('tarefa.alterarstatus');
 });
-
 
 
 require __DIR__.'/auth.php';
